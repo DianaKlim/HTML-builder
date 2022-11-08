@@ -1,14 +1,17 @@
 const fs = require('fs');
 const fsPromises = fs.promises;
 const path = require('path');
+const { Transform } = require('stream');
 const components = path.join(__dirname, 'components');
+const styles = path.join(__dirname, 'styles');
+const src = path.join(__dirname, 'template.html');
+const assets = path.join(__dirname, 'assets');
 const dest = path.join(__dirname, 'project-dist');
 const destHtml = path.join(dest, 'index.html');
 const destStyle = path.join(dest, 'style.css');
-const styles = path.join(__dirname, 'styles');
-const src = path.join(__dirname, 'template.html');
+const destAssets = path.join(dest, 'assets');
 const doNothing = () => { };
-const { Transform } = require('stream');
+
 
 
 
@@ -44,7 +47,6 @@ fsPromises
                         }
                     })
                 })
-                console.log(res)
             })
         })
     })
@@ -56,7 +58,7 @@ fsPromises
 
     fs.readdir(styles, { withFileTypes: true }, (err, files) => {
         files.forEach((file) => {
-            console.log('file', file)
+   
             if (!file.isDirectory() && path.extname(file.name) === '.css') {
                 let readableStream = fs.createReadStream(path.join(styles, file.name), 'utf8');
 
@@ -75,7 +77,29 @@ fsPromises
 })();
 
 
+(function copyAssets() {
+    // fsPromises
+    // .rm(dest, {force: true, recursive: true}, doNothing)
+    // .then(doNothing);
 
+    fsPromises
+    .mkdir(destAssets, { recursive: true }, doNothing)
+    .then(doNothing);
+
+
+    fs.readdir(assets, {withFileTypes: true}, (err, files) => { 
+        files.forEach(file => {
+            if(file.isDirectory()) {
+                console.log(file.name)
+                fsPromises.mkdir(path.join(destAssets, file.name));
+            }
+        // fsPromises.copyFile(path.join(assets, file.name), path.join(destAssets, file.name));
+        // let readableStream = fs.createReadStream(path.join(assets, file.name), 'utf8');
+        // let writeableStream = fs.createReadStream(path.join(destAssets, file.name), 'utf8');
+        // readableStream.pipe(writeableStream);
+    })
+    })
+})()
 
 
 
