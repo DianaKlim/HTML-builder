@@ -5,11 +5,13 @@ const { Transform } = require('stream');
 const components = path.join(__dirname, 'components');
 const styles = path.join(__dirname, 'styles');
 const src = path.join(__dirname, 'template.html');
-const assets = path.join(__dirname, 'assets');
+
 const dest = path.join(__dirname, 'project-dist');
+const assets = path.join(__dirname, 'assets');
+const destAssets = path.join(dest, 'assets');
 const destHtml = path.join(dest, 'index.html');
 const destStyle = path.join(dest, 'style.css');
-const destAssets = path.join(dest, 'assets');
+
 const doNothing = () => { };
 
 
@@ -78,27 +80,59 @@ fsPromises
 
 
 (function copyAssets() {
-    // fsPromises
-    // .rm(dest, {force: true, recursive: true}, doNothing)
-    // .then(doNothing);
 
     fsPromises
-    .mkdir(destAssets, { recursive: true }, doNothing)
-    .then(doNothing);
+    .rm(destAssets, {force: true, recursive: true}, doNothing)
+    .then(() => {
+        fsPromises
+        .mkdir(destAssets, { recursive: true }, doNothing)
+        .then(() => {
+          fsPromises
+            .readdir(assets, {withFileTypes: true}, doNothing)
+            .then( (files) => { 
+                files.forEach(file => {
+                    const folderName = file.name;
+                    if(file.isDirectory()) {
+                        fsPromises.mkdir(path.join(destAssets, file.name));
+                        fs.readdir(path.join(assets, file.name), {withFileTypes: true}, (err, folders) => { 
+                            folders.forEach(file => {
+                                fsPromises.copyFile(path.join(assets, folderName, file.name), path.join(destAssets, folderName, file.name));
+                            })
+                        })
+                    }
+            })
+            })
+        });
+    });
+   
 
 
-    fs.readdir(assets, {withFileTypes: true}, (err, files) => { 
-        files.forEach(file => {
-            if(file.isDirectory()) {
-                console.log(file.name)
-                fsPromises.mkdir(path.join(destAssets, file.name));
-            }
-        // fsPromises.copyFile(path.join(assets, file.name), path.join(destAssets, file.name));
-        // let readableStream = fs.createReadStream(path.join(assets, file.name), 'utf8');
-        // let writeableStream = fs.createReadStream(path.join(destAssets, file.name), 'utf8');
-        // readableStream.pipe(writeableStream);
-    })
-    })
+
+
+    // fs.mkdir(destAssets, { recursive: true }, (err => {
+    //     if (err) {
+    //         throw new Error('Folder already exist')
+    //     }
+    // }))
+ 
+
+    // fsPromises
+    // .readdir(assets, {withFileTypes: true}, doNothing)
+    // .then( (files) => { 
+    //     files.forEach(file => {
+    //         if(file.isDirectory()) {
+    //             console.log(file.name)
+    //             const items = fsPromises.mkdir(path.join(destAssets, file.name));
+    //             console.log(items)
+    //             // fs.readdir(path.join(assets, file.name), {withFileTypes: true}, (err, folders) => { 
+    //             //     folders.forEach(file => {
+                        
+    //             //         fsPromises.copyFile(path.join(assets, file.name), path.join(destAssets, file.name));
+    //             //     })
+    //             // })
+    //         }
+    // })
+    // })
 })()
 
 
