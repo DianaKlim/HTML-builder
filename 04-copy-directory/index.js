@@ -6,24 +6,23 @@ const dest = path.join(__dirname, 'files-copy');
 const doNothing = () => {};
 
 
-fsPromises
-.rm(dest, {force: true, recursive: true}, doNothing)
-.then(doNothing);
+(async function go() {
+  await fsPromises
+  .rm(dest, {force: true, recursive: true}, doNothing)
+  .then(doNothing);
 
-fsPromises
-.mkdir(dest, { recursive: true }, doNothing)
-.then(doNothing);
-
-
-fs.readdir(src, {withFileTypes: true}, (err, files) => { 
-    files.forEach(file => {
-      fsPromises.copyFile(path.join(src, file.name), path.join(dest, file.name));
-    })
-})
+  await fsPromises
+  .mkdir(dest, { recursive: true }, doNothing)
+  .then(doNothing);
 
 
+  await fs.readdir(src, {withFileTypes: true}, (err, files) => { 
+      files.forEach(file => {
+        fsPromises.copyFile(path.join(src, file.name), path.join(dest, file.name));
+      })
+  })
 
-
+})()
 
 
 
