@@ -16,7 +16,7 @@ fs.readdir(absPath, {withFileTypes: true}, (err, files) => {
             const name = file.name;
             const pathName = name.substr(0, name.lastIndexOf('.'));
             const ext = path.extname(file.name).substr(1);
-            console.log(pathName, '-', ext, '-', fileInfo.size);
+            console.log(pathName, '-', ext, '-', `${fileInfo.size/1000} kb`);
         })
       }
     })
